@@ -12,7 +12,7 @@ const LinkedInIcon = () => (
 );
 
 const ProfileDialog = ({ open, onClose, onDeleteAllChats, onLogin }) => {
-  const { openSignIn } = useClerk();
+  const { openSignIn, signOut, openUserProfile } = useClerk();
   const { user } = useAppContext();
   const [contactPopoverOpen, setContactPopoverOpen] = useState(false);
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
@@ -46,6 +46,16 @@ const ProfileDialog = ({ open, onClose, onDeleteAllChats, onLogin }) => {
     };
   }, [open, onClose, deleteConfirmationOpen, logoutConfirmationOpen, contactPopoverOpen]);
 
+  // Handle account management action
+  const handleAccountAction = () => {
+    if (user) {
+      openUserProfile();
+    } else {
+      openSignIn();
+    }
+    onClose();
+  };
+
   if (!open) return null;
 
   return (
@@ -62,7 +72,7 @@ const ProfileDialog = ({ open, onClose, onDeleteAllChats, onLogin }) => {
           <ul className="py-2">
             <li 
               className="flex items-center px-4 py-3 hover:bg-[#4A4A56]/70 transition-all cursor-pointer group" 
-              onClick={user ? null : openSignIn}
+              onClick={handleAccountAction}
             >
               <div className="p-2 rounded-full bg-blue-500/20 group-hover:bg-blue-500/30 transition-all">
                 {user ? 
@@ -108,21 +118,23 @@ const ProfileDialog = ({ open, onClose, onDeleteAllChats, onLogin }) => {
               </div>
               <span className="ml-3 font-medium">Contact Us</span>
             </li>
-            <li 
-              className="flex items-center px-4 py-3 hover:bg-[#4A4A56]/70 transition-all cursor-pointer group" 
-              onClick={() => setLogoutConfirmationOpen(true)}
-            >
-              <div className="p-2 rounded-full bg-purple-500/20 group-hover:bg-purple-500/30 transition-all">
-                <Image 
-                  src={assets.LogoutIcon || "/icons/logout.svg"} 
-                  width={18} 
-                  height={18} 
-                  alt="Logout"
-                  className="w-5 h-5"
-                />
-              </div>
-              <span className="ml-3 font-medium">Logout</span>
-            </li>
+            {user && (
+              <li 
+                className="flex items-center px-4 py-3 hover:bg-[#4A4A56]/70 transition-all cursor-pointer group" 
+                onClick={() => setLogoutConfirmationOpen(true)}
+              >
+                <div className="p-2 rounded-full bg-purple-500/20 group-hover:bg-purple-500/30 transition-all">
+                  <Image 
+                    src={assets.LogoutIcon || "/icons/logout.svg"} 
+                    width={18} 
+                    height={18} 
+                    alt="Logout"
+                    className="w-5 h-5"
+                  />
+                </div>
+                <span className="ml-3 font-medium">Logout</span>
+              </li>
+            )}
           </ul>
         </div>
       )}
@@ -230,7 +242,7 @@ const ProfileDialog = ({ open, onClose, onDeleteAllChats, onLogin }) => {
               <button
                 className="px-5 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 transition-all text-white rounded-lg font-medium"
                 onClick={() => {
-                  // Add logout logic here
+                  signOut();
                   setLogoutConfirmationOpen(false);
                   onClose();
                 }}
