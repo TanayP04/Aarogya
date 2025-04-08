@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import mlService from './ml/mlService';
+
 
 const ChatSchema = new mongoose.Schema(
   {
@@ -17,16 +17,6 @@ const ChatSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Add method to get ML response
-ChatSchema.methods.getMLResponse = async function(query) {
-  try {
-    const response = await mlService.getResponse(query);
-    return response;
-  } catch (error) {
-    console.error('Error getting ML response:', error);
-    throw error;
-  }
-};
 
 const Chat = mongoose.models.Chat || mongoose.model("Chat", ChatSchema);
 

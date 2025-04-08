@@ -13,7 +13,7 @@ const Sidebar = ({ expand, setExpand }) => {
   const [openMenu, setOpenMenu] = useState({ id: 0, open: false });
 
   return (
-    <div className={`flex flex-col justify-between bg-[#212327] pt-7 transition-all z-50 max-md:absolute max-md:h-screen ${
+<div className={`flex flex-col justify-between bg-[#212327] h-screen pt-7 transition-all z-50 max-md:fixed max-md:top-0 max-md:left-0 ${
       expand ? 'p-4 w-64' : 'md:w-20 w-0 max-md:overflow-hidden'
     }`}>
       <div>
@@ -83,14 +83,14 @@ const Sidebar = ({ expand, setExpand }) => {
 
       <div
         onClick={() => setDialogOpen(true)}
-        className={`flex items-center bottom-3 ${
+        className={`flex items-center mb-6 ${
           expand ? 'hover:bg-white/10 rounded-lg' : 'justify-center w-full'
-        } gap-3 text-white/60 text-sm p-2 mt-2 cursor-pointer `}
+        } gap-3 text-white/60 text-sm p-2 mt-2 cursor-pointer`}
       >
         <Image 
           src={assets.ProfileIcon || "/icons/profile.svg"} 
           alt="Profile Icon" 
-          className="w-6 h-6 filter brightness-0 invert bottom-5" 
+          className="w-6 h-6 filter brightness-0 invert" 
           width={24} 
           height={24} 
         />
