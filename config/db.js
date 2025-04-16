@@ -4,7 +4,6 @@ let cached = global.mongoose || { conn: null, promise: null };
 
 export default async function connectDB() {
   if (cached.conn) {
-    console.log("Using existing MongoDB connection");
     return cached.conn;
   }
 

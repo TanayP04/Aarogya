@@ -4,6 +4,7 @@ import { useAppContext } from "@/context/AppContext";
 import { X, User, Trash2, Users, LogOut, ChevronRight, Settings } from "lucide-react";
 import Image from "next/image";
 import { assets, teamContacts } from "@/assets/assets";
+
 const ProfileDialog = ({ open, onClose, onDeleteAllChats }) => {
   const { openSignIn, signOut, openUserProfile } = useClerk();
   const { user } = useAppContext();
@@ -30,9 +31,6 @@ const ProfileDialog = ({ open, onClose, onDeleteAllChats }) => {
   }, [open, onClose, deleteConfirmOpen, logoutConfirmOpen]);
 
   if (!open) return null;
-
-  // Contact information
-
 
   return (
     <>
@@ -62,7 +60,17 @@ const ProfileDialog = ({ open, onClose, onDeleteAllChats }) => {
               }}
             >
               <div className="mr-3 flex items-center justify-center w-8 h-8 rounded-full bg-neutral-500">
-                {user ? <UserButton /> : <User size={16} />}
+                {user ? (
+                  <UserButton />
+                ) : (
+                  <Image
+                    src={assets.ProfileIcon}
+                    alt="Profile Icon"
+                    className="w-5 h-5 filter brightness-0 invert"
+                    width={20}
+                    height={20}
+                  />
+                )}
               </div>
               <span className="flex-1">{user ? 'My Account' : 'Login'}</span>
               <ChevronRight size={16} className="text-gray-500" />

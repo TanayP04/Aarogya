@@ -11,7 +11,7 @@ const Sidebar = ({ expand, setExpand }) => {
   const { openSignIn } = useClerk();
   const { user, setSelectedChat } = useAppContext();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [openMenu, setOpenMenu] = useState({ id: 0, open: false });
+  const [activeMenuId, setActiveMenuId] = useState(null);
   const [chats, setChats] = useState([]);
 
   const fetchChats = useCallback(async () => {
@@ -59,6 +59,29 @@ const Sidebar = ({ expand, setExpand }) => {
     }
   };
 
+  // Close any open menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const menuElements = document.querySelectorAll('.chat-menu');
+      let clickedInsideMenu = false;
+      
+      menuElements.forEach(menu => {
+        if (menu && menu.contains(event.target)) {
+          clickedInsideMenu = true;
+        }
+      });
+      
+      if (!clickedInsideMenu) {
+        setActiveMenuId(null);
+      }
+    };
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className={`flex flex-col justify-between bg-[#212327] h-screen pt-7 transition-all z-50 max-md:fixed max-md:top-0 max-md:left-0 ${expand ? 'p-4 w-64' : 'md:w-20 w-0 max-md:overflow-hidden'}`}>
       {/* Main content area */}
@@ -90,10 +113,8 @@ const Sidebar = ({ expand, setExpand }) => {
               width={28}
               height={28}
             />
-            <div className={`absolute w-max ${expand ? "left-1/2 -translate-x-1/2 top-12" : "-top-12 left-0"} opacity-0 group-hover:opacity-100 transition bg-black text-white text-sm px-3 py-2 rounded-lg shadow-lg pointer-events-none`}>
-              {expand ? 'Close Sidebar' : "Open Sidebar"}
-              <div className={`w-3 h-3 absolute bg-black rotate-45 ${expand ? "left-1/2 -top-1.5 -translate-x-1/2" : "left-4 -bottom-1.5"}`}></div>
-            </div>
+          
+
           </button>
         </div>
 
@@ -101,10 +122,11 @@ const Sidebar = ({ expand, setExpand }) => {
         <button
           onClick={createNewChat}
           aria-label="New Chat"
-          className={`mt-8 flex items-center justify-center cursor-pointer text-white ${expand
-            ? "bg-primary hover:opacity-90 rounded-2xl gap-2 p-2.5 w-max"
-            : "group relative h-9 w-9 mx-auto hover:bg-gray-500/30 rounded-lg"
-            }`}
+          className={`mt-8 flex items-center justify-center cursor-pointer text-white ${
+            expand
+              ? "bg-primary hover:opacity-90 rounded-2xl gap-2 p-2.5 w-max"
+              : "group relative h-9 w-9 mx-auto hover:bg-gray-500/30 rounded-lg"
+          }`}
         >
           <Image
             src={assets.newchatIcon}
@@ -116,9 +138,9 @@ const Sidebar = ({ expand, setExpand }) => {
           {expand ? (
             <span className="text-white text-sm font-medium">New Chat</span>
           ) : (
-            <div className="absolute w-max -top-12 -right-12 opacity-0 group-hover:opacity-100 transition bg-black text-white text-sm px-3 py-2 rounded-lg shadow-lg pointer-events-none">
+            <div className="absolute w-max bg-black text-white text-sm px-3 py-2 rounded-lg shadow-lg pointer-events-none transition-opacity duration-200 opacity-0 ">
               New Chat
-              <div className="w-3 h-3 absolute bg-black rotate-45 left-4 -bottom-1.5"></div>
+              <div className="absolute w-3 h-3 bg-black rotate-45 top-1/2 -right-2 -translate-y-1/2"></div>
             </div>
           )}
         </button>
@@ -132,9 +154,9 @@ const Sidebar = ({ expand, setExpand }) => {
                 <ChatLabel
                   key={chat._id}
                   chat={chat}
-                  openMenu={openMenu}
-                  setOpenMenu={setOpenMenu}
-                  refreshChats={fetchChats}  // This is crucial
+                  activeMenuId={activeMenuId}
+                  setActiveMenuId={setActiveMenuId}
+                  refreshChats={fetchChats}  
                 />
               ))
             ) : (
@@ -148,8 +170,9 @@ const Sidebar = ({ expand, setExpand }) => {
       <button
         onClick={() => setDialogOpen(true)}
         aria-label="Profile"
-        className={`flex items-center mt-4 mb-6 ${expand ? 'hover:bg-white/10 rounded-lg' : 'justify-center w-full'
-          } gap-3 text-white/60 text-sm p-2 cursor-pointer focus:outline-none`}
+        className={`flex items-center mt-4 mb-6 ${
+          expand ? 'hover:bg-white/10 rounded-lg' : 'justify-center w-full'
+        } gap-3 text-white/60 text-sm p-2 cursor-pointer focus:outline-none group relative`}
       >
         <Image
           src={assets.ProfileIcon}
@@ -158,7 +181,14 @@ const Sidebar = ({ expand, setExpand }) => {
           width={24}
           height={24}
         />
-        {expand && <span className="font-medium">Profile</span>}
+        {expand ? (
+          <span className="font-medium">Profile</span>
+        ) : (
+          <div className="absolute w-max bg-black text-white text-sm px-3 py-2 rounded-lg shadow-lg pointer-events-none transition-opacity duration-200 opacity-0 group-hover:opacity-100 right-0 top-1/2 -translate-y-1/2 mr-12">
+            Profile
+            <div className="absolute w-3 h-3 bg-black rotate-45 top-1/2 -right-1 -translate-y-1/2"></div>
+          </div>
+        )}
       </button>
 
       {/* Profile Dialog */}
