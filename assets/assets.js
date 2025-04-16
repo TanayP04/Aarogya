@@ -37,3 +37,21 @@ export const assets = {
      copyIcon,
      LogoSmall
 }
+export const teamContacts = [
+   {
+     name: "Saish Ghatol",
+     linkedinUrl: "https://www.linkedin.com/in/saish-ghatol/"
+   },
+   {
+     name: "Sujal Attarde",
+     linkedinUrl: "https://www.linkedin.com/in/sujal-attarde/"
+   },
+   {
+     name: "Nakul Kushe",
+     linkedinUrl: "https://www.linkedin.com/in/nakul-kushe-61a9512bb/"
+   },
+   {
+     name: "Tanay Palkandwar",
+     linkedinUrl: "https://www.linkedin.com/in/tanay-palkandwar-4ba078257/"
+   }
+ ];

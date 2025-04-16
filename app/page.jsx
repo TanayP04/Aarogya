@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { TypeAnimation } from 'react-type-animation';
 import Image from 'next/image';
 import { assets } from '@/assets/assets';
 import Sidebar from "@/components/Sidebar";
@@ -12,23 +11,13 @@ export default function Home() {
   const [expand, setExpand] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentLanguageIndex, setCurrentLanguageIndex] = useState(0);
-  const { selectedChat } = useAppContext();
+  const { selectedChat, createNewChat } = useAppContext();
   const containerRef = useRef(null);
 
   const indianLanguages = [
     { language: "English", text: "Welcome to Aarogya" },
     { language: "Hindi", text: "आरोग्य में आपका स्वागत है" },
     { language: "Marathi", text: "आरोग्यामध्ये आपले स्वागत आहे" },
-    { language: "Bengali", text: "আরোগ্যে আপনাকে স্বাগতম" },
-    { language: "Telugu", text: "ఆరోగ్యకు స్వాగతం" },
-    { language: "Sanskrit", text: "आरोग्याय स्वागतम्" },
-    { language: "Urdu", text: "آرگيا میں خوش آمدید" },
-    { language: "Gujarati", text: "આરોગ્યમાં આપનું સ્વાગત છે" },
-    { language: "Kannada", text: "ಆರೋಗ್ಯಕ್ಕೆ ಸುಸ್ವಾಗತ" },
-    { language: "Odia", text: "ଆରୋଗ୍ୟରେ ସ୍ୱାଗତ" },
-    { language: "Punjabi", text: "ਆਰੋਗ ਵਿੱਚ ਜੀ ਆਇਆਂ ਨੂੰ" },
-    { language: "Malayalam", text: "ആരോഗ്യത്തിന് സ്വാഗതം" },
-    { language: "Assamese", text: "আৰোগ্যলৈ স্বাগতম" },
   ];
 
   // Handle sidebar visibility based on screen size
@@ -64,6 +53,14 @@ export default function Home() {
     }
   }, [selectedChat?.messages]);
 
+  const handleMobileNewChat = () => {
+    createNewChat();
+    // After creating a new chat, close the sidebar on mobile
+    if (window.innerWidth < 768) {
+      setExpand(false);
+    }
+  };
+
   return (
     <div className="flex h-screen w-full overflow-hidden bg-gradient-to-br from-[#1a1b1e] to-[#2d2e32]">
       {/* Overlay for mobile when sidebar is open */}
@@ -82,13 +79,13 @@ export default function Home() {
 
       {/* Main content area */}
       <div
-        className={`flex flex-col h-full flex-1 overflow-hidden transition-all duration-300 ${
+        className={`flex flex-col h-full flex-1 overflow-hidden transition-all duration-300 text-white ${
           expand ? 'md:ml-5' : 'md:ml-20'
         }`}
       >
         {/* Mobile header */}
         <div className="sticky top-0 z-20 w-full flex items-center justify-between p-3
-                      lg:hidden bg-gradient-to-b from-[#1a1b1e] to-transparent">
+                      lg:hidden bg-gradient-to-b from-[#1a1b1e] to-transparent text-white">
           <button
             onClick={() => setExpand(!expand)}
             className="p-2 rounded-full hover:bg-white/10 transition-colors"
@@ -110,7 +107,8 @@ export default function Home() {
           </div>
 
           <button
-            className="p-2 rounded-full hover:bg-white/10 transition-colors text-white"
+            onClick={handleMobileNewChat}
+            className="p-2 rounded-full hover:bg-white/10 transition-colors text-white bg-[#1a1b1e]/80"
             aria-label="New chat"
           >
             <Image
@@ -146,21 +144,14 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Typing Animation */}
+              {/* Static language display instead of Type Animation */}
               <div className="mb-6 h-16 md:h-20 flex items-center justify-center w-full">
-                <TypeAnimation
-                  aria-label="Changing language greetings"
-                  sequence={indianLanguages.flatMap((lang) => [
-                    lang.text,
-                    1000,
-                    '',
-                    { type: "delete", speed: 99 },
-                  ])}
-                  speed={50}
-                  deletionSpeed={100}
-                  repeat={Infinity}
+                <h1 
+                  aria-label="Welcome message"
                   className="text-2xl md:text-3xl lg:text-4xl font-bold text-center bg-gradient-to-r from-teal-400 to-blue-500 text-transparent bg-clip-text"
-                />
+                >
+                  {indianLanguages[currentLanguageIndex].text}
+                </h1>
               </div>
 
               {/* Description */}
@@ -175,7 +166,7 @@ export default function Home() {
             </div>
           ) : (
             // Chat messages display
-            <div className="flex flex-col items-center justify-start w-full mt-20 pb-4 -left-6">
+            <div className="flex flex-col items-center w-full mt-20 pb-4">
               <p className="fixed top-8 z-10 border border-transparent hover:border-gray-500/50 py-1 px-3 rounded-lg font-semibold bg-[#1a1b1e]/80 backdrop-blur-sm">
                 {selectedChat.name}
               </p>
@@ -189,11 +180,11 @@ export default function Home() {
               ))}
               
               {isLoading && (
-                <div className="flex gap-4 max-w-3xl w-full py-3">
+                <div className="flex items-start max-w-3xl w-full py-3 px-4">
                   <Image 
                     src={assets.LogoSmall} 
                     alt="logo" 
-                    className="w-7 h-7 border border-white/15 rounded-full" 
+                    className="w-7 h-7 border border-white/15 rounded-full mr-3" 
                   />
                   <div className="loader flex justify-center gap-1 items-center">
                     <div className="w-1 h-1 rounded-full bg-white animate-bounce"></div>

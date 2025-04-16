@@ -13,6 +13,7 @@
     "@google/generative-ai": "^0.24.0",
     "axios": "^1.8.4",
     "dotenv": "^16.4.7",
+    "lucide-react": "^0.488.0",
     "mongoose": "^8.13.1",
     "next": "15.2.4",
     "prismjs": "^1.30.0",

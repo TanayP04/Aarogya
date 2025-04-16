@@ -1,8 +1,25 @@
 'use client';
 import { useUser, useAuth } from "@clerk/nextjs";
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
+
+// Configure axios to include auth token in all requests
+const setupAxiosInterceptors = (getToken) => {
+  axios.interceptors.request.use(async (config) => {
+    try {
+      const token = await getToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (err) {
+      console.error("Error setting auth token:", err);
+    }
+    return config;
+  }, (error) => {
+    return Promise.reject(error);
+  });
+};
 
 export const AppContext = createContext();
 
@@ -16,48 +33,53 @@ export const AppContextProvider = ({ children }) => {
   
   const [chat, setChat] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
+  const [loading, setLoading] = useState(false);
   
-  const createNewChat = async () => {
+  // Set up axios interceptor to add auth token to all requests
+  useEffect(() => {
+    if (getToken) {
+      setupAxiosInterceptors(getToken);
+    }
+  }, [getToken]);
+  
+  // Create a new chat
+  const createNewChat = useCallback(async () => {
     try {
-      if (!user) {
-        toast.error("Please login to continue");
-        return null;
-      }
+      setLoading(true);
       
-      const token = await getToken();
-      const { data } = await axios.post('/api/chat/create', {}, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+      const response = await axios.post('/api/chat/create', {
+        name: "New Chat",
+        messages: []
       });
-      
-      if (data.success) {
+  
+      if (response.data.success) {
         await fetchUsersChats();
+        setSelectedChat(response.data.chat);
+        return response.data.chat;
       } else {
-        toast.error(data.message || "Error creating chat");
+        toast.error(response.data.error || "Failed to create chat");
+        return null;
       }
     } catch (error) {
-      console.error(error);
-      toast.error("Error creating chat");
+      console.error("Failed to create new chat:", error);
+      toast.error("Failed to create new chat");
+      return null;
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
   
-  const fetchUsersChats = async () => {
+  // Fetch user's chats
+  const fetchUsersChats = useCallback(async () => {
     try {
       if (!user) {
         return null;
       }
       
-      const token = await getToken();
-      const { data } = await axios.get('/api/chat/get', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      setLoading(true);
+      const { data } = await axios.get('/api/chat/get');
       
       if (data.success) {
-        console.log(data.chats);
-        
         // Sort chats by updatedAt date
         const sortedChats = [...data.chats].sort((a, b) => {
           return new Date(b.updatedAt) - new Date(a.updatedAt);
@@ -65,35 +87,57 @@ export const AppContextProvider = ({ children }) => {
         
         setChat(sortedChats);
         
-        if (sortedChats.length === 0) {
-          await createNewChat();
-        } else {
+        // If there's no selected chat, select the first one if available
+        if (sortedChats.length > 0 && !selectedChat) {
           setSelectedChat(sortedChats[0]);
         }
+        
+        return sortedChats;
       } else {
         toast.error(data.message || "Error fetching chats");
+        return null;
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching chats:", error);
       toast.error("Error fetching chats");
+      return null;
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [user, selectedChat]);
   
+  // Initialize user's data when they log in
   useEffect(() => {
-    if (user) {
-      fetchUsersChats();
-    }
-  }, [user]);
+    const initializeUserData = async () => {
+      if (user) {
+        const chats = await fetchUsersChats();
+        if (!chats || chats.length === 0) {
+          await createNewChat();
+        }
+      } else {
+        // Clear state when user logs out
+        setChat([]);
+        setSelectedChat(null);
+      }
+    };
+    
+    initializeUserData();
+  }, [user, fetchUsersChats, createNewChat]);
   
   const value = {
     user,
     chat,
     setChat,
-    selectedChat,
+    selectedChat, 
     setSelectedChat,
     fetchUsersChats,
     createNewChat,
+    loading
   };
   
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={value}>
+      {children}
+    </AppContext.Provider>
+  );
 };

@@ -17,7 +17,7 @@ function Message({ role, content }) {
   };
 
   return (
-    <div className="flex w-full justify-center mb-6 ">
+    <div className="flex w-full justify-center mb-6 pt-5">
       <div className={`flex w-full max-w-3xl ${role === "user" ? "justify-end" : "justify-start"}`}>
         <div className={`group relative ${
           role === "user"
@@ -27,7 +27,7 @@ function Message({ role, content }) {
           {/* Action buttons on hover */}
           <div className={`opacity-0 group-hover:opacity-100 absolute ${
             role === "user"
-              ? "right-10 top-2"
+              ? "-right-10 top-2"
               : "-left-10 top-2"
             } transition-all hidden sm:flex z-10`}>
             <div className="flex items-center gap-2 opacity-70">
@@ -44,27 +44,13 @@ function Message({ role, content }) {
                   className="w-4 cursor-pointer brightness-0 invert"
                 />
               </button>
-              
-              {role === "user" && (
-                <button
-                  className="p-1 hover:bg-white/10 rounded-md transition-colors"
-                  aria-label="Edit message"
-                >
-                  <Image
-                    src={assets.Pencil}
-                    alt="Edit message"
-                    width={12}
-                    height={12}
-                    className="w-3 cursor-pointer brightness-0 invert"
-                  />
-                </button>
-              )}
+          
             </div>
           </div>
           
           {/* Message content */}
           {role === "user" ? (
-            <div className="text-white/90 break-words text-sm md:text-base">{content}</div>
+            <div className="text-white/90 break-words text-sm md:text-base ">{content}</div>
           ) : (
             <div className="flex gap-3 items-start w-full">
               <div className="flex-shrink-0 pt-1">
